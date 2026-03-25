@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mother's Ruin Trip Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ===== Design Tokens ===== */
+:root {
+  --bg:         #080f1e;
+  --surface:    #111927;
+  --surface2:   #182030;
+  --surface3:   #1f2c40;
+  --border:     #263347;
+  --text:       #dde4f0;
+  --muted:      #5a7291;
+  --amber:      #f59e0b;
+  --amber-dim:  #b37208;
+  --green:      #10b981;
+  --red:        #ef4444;
+  --blue:       #3b82f6;
+  --radius:     10px;
+  --font:       'Inter', system-ui, sans-serif;
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: var(--amber); text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, select { font-family: inherit; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ===== Layout ===== */
+.shell {
+  display: grid;
+  grid-template-rows: 56px 1fr;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== Header ===== */
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -.3px;
+}
+.header-brand .icon { font-size: 22px; }
+.header-brand .tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  margin-left: 4px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+.pill.amber { border-color: var(--amber-dim); color: var(--amber); background: #1c1000; }
+
+/* ===== Sidebar ===== */
+aside {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sidebar-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.filter-group { display: flex; flex-direction: column; gap: 6px; }
+.filter-group label { font-size: 12px; color: var(--muted); }
+.filter-group input[type="number"],
+.filter-group select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
+}
+.filter-group input[type="number"]:focus,
+.filter-group select:focus { border-color: var(--amber); }
+.filter-group select option { background: var(--surface2); }
+
+.price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+.airline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 2px;
+}
+.airline-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.airline-item input[type="checkbox"] { accent-color: var(--amber); }
+.airline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity .15s;
+}
+.btn:hover { opacity: .88; }
+.btn-primary { background: var(--amber); color: #000; }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ===== Main ===== */
+main {
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ===== Stat Cards ===== */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.stat-card .value { font-size: 26px; font-weight: 700; line-height: 1.1; color: var(--amber); }
+.stat-card .sub { font-size: 11px; color: var(--muted); }
+
+/* ===== Card ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.card-title { font-size: 13px; font-weight: 600; }
+.card-meta { font-size: 12px; color: var(--muted); }
+
+/* ===== Chart ===== */
+.chart-wrap { padding: 12px 16px; max-height: 300px; overflow-y: auto; }
+#chartSizer { position: relative; width: 100%; }
+
+/* ===== Table ===== */
+.table-wrap { overflow-x: auto; overflow-y: auto; max-height: 520px; }
+.card.fullscreen .table-wrap { max-height: none; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { color: var(--text); }
+thead th.sorted { color: var(--amber); }
+thead th.sorted::after { content: ' ↑'; font-size: 10px; }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+tbody tr.expanded { background: var(--surface2); }
+td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}
+.route-cell { font-weight: 600; white-space: nowrap; }
+.price-big { font-size: 16px; font-weight: 700; color: var(--amber); }
+.duration-cell { color: var(--muted); white-space: nowrap; }
+.layover-cell { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.expand-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 8px;
+  color: var(--muted);
+  font-size: 12px;
+  transition: all .15s;
+}
+.expand-btn:hover { border-color: var(--amber); color: var(--amber); }
+.expand-row td {
+  padding: 0;
+  border-bottom: 2px solid var(--amber-dim);
+}
+
+/* ===== Airline Badge ===== */
+.airline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: .9;
+}
+
+/* ===== Timeline ===== */
+.timeline-wrap {
+  padding: 20px 16px;
+  animation: slideDown .18s ease-out;
+}
+@keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.timeline-header h3 { font-size: 13px; font-weight: 600; }
+.timeline-total { font-size: 13px; color: var(--amber); font-weight: 700; }
+
+.timeline {
+  display: flex;
+  align-items: stretch;
+  min-height: 80px;
+  gap: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tl-leg {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 10px;
+  min-width: 120px;
+  position: relative;
+}
+.tl-leg-top { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.tl-leg-mid { font-size: 10px; opacity: .8; white-space: nowrap; }
+.tl-leg-bot { font-size: 11px; white-space: nowrap; }
+.tl-leg-price { font-size: 12px; font-weight: 700; }
+.tl-layover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface3);
+  min-width: 80px;
+  padding: 8px;
+  text-align: center;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.tl-layover .city { font-size: 13px; font-weight: 700; }
+.tl-layover .dur { font-size: 11px; color: var(--muted); }
+.tl-layover .warn { font-size: 10px; color: var(--red); }
+.tl-layover .ok { font-size: 10px; color: var(--green); }
+
+/* leg times strip */
+.tl-times {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.tl-time-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.tl-time-node .t { color: var(--text); font-weight: 600; white-space: nowrap; }
+.tl-time-node .c { color: var(--muted); font-size: 10px; white-space: nowrap; }
+.tl-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  min-width: 20px;
+  position: relative;
+}
+.tl-connector::after {
+  content: '✈';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===== Load more ===== */
+.load-more-wrap { padding: 12px; text-align: center; }
+.result-count { font-size: 12px; color: var(--muted); }
+
+/* ===== Empty / Loading state ===== */
+.state-msg {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== Pipeline Status Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  z-index: 100;
+  display: none;
+  max-width: 300px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+.toast.show { display: block; }
+.toast.success { border-color: var(--green); }
+.toast.error { border-color: var(--red); }
+
+/* ===== Fullscreen cards ===== */
+.expand-card-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+  padding: 3px 7px;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.expand-card-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+#fsOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  z-index: 199;
+}
+
+.card.fullscreen {
+  position: fixed;
+  inset: 16px;
+  z-index: 200;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.card.fullscreen .chart-wrap {
+  flex: 1;
+  overflow-y: auto;
+  max-height: none;
+}
+.card.fullscreen .table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.card.fullscreen .pagination-wrap { flex-shrink: 0; }
+
+/* ===== Pagination ===== */
+.pagination-wrap {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.pg-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  transition: all .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pg-btn:hover:not(:disabled) { border-color: var(--amber); color: var(--amber); }
+.pg-btn.active { background: var(--amber); border-color: var(--amber); color: #000; font-weight: 700; }
+.pg-btn:disabled { opacity: .35; cursor: default; }
+.pg-ellipsis { color: var(--muted); padding: 0 4px; font-size: 13px; line-height: 32px; }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; grid-template-rows: 56px auto 1fr; }
+  aside { border-right: none; border-bottom: 1px solid var(--border); max-height: 280px; }
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Header -->
+  <header>
+    <div class="header-brand">
+      <span class="icon">🍸</span>
+      <span>Mother's Ruin Trip Planner</span>
+      <span class="tag">May 10, 2026</span>
+    </div>
+    <div class="header-right">
+      <span id="db-status" class="pill">Loading...</span>
+      <button class="btn btn-ghost" style="width:auto;padding:4px 12px;font-size:12px" onclick="triggerPipeline()">
+        Refresh Data
+      </button>
+    </div>
+  </header>
+
+  <!-- Sidebar Filters -->
+  <aside>
+    <div>
+      <div class="sidebar-title">Filters</div>
+    </div>
+
+    <div class="filter-group">
+      <label>Price Range</label>
+      <div class="price-row">
+        <input type="number" id="minPrice" placeholder="Min $" min="0" value="0">
+        <input type="number" id="maxPrice" placeholder="Max $" min="0" value="9999">
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Start City</label>
+      <select id="startCity">
+        <option value="">Any</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>End City</label>
+      <select id="endCity">
+        <option value="">Any</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Must Include</label>
+      <div class="airline-list" id="mustIncludeList"></div>
+    </div>
+
+    <div class="filter-group">
+      <label>Depart After (local hour)</label>
+      <select id="departsAfter">
+        <option value="0">Any time</option>
+        <option value="6">6 AM</option>
+        <option value="7">7 AM</option>
+        <option value="8">8 AM</option>
+        <option value="9">9 AM</option>
+        <option value="10">10 AM</option>
+        <option value="11">11 AM</option>
+        <option value="12">Noon</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Min Layover (minutes)</label>
+      <input type="number" id="minLayover" placeholder="e.g. 90" min="0" value="0">
+    </div>
+
+    <hr class="divider">
+
+    <div class="filter-group">
+      <label>Airlines</label>
+      <div class="airline-list" id="airlineList">
+        <div class="state-msg" style="padding:8px">Loading...</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="filter-group">
+      <label>Sort By</label>
+      <select id="sortBy">
+        <option value="price">Total Price</option>
+        <option value="duration">Total Duration</option>
+        <option value="route">Route (A-Z)</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+    <button class="btn btn-ghost" onclick="resetFilters()">Reset</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main">
+
+    <!-- Stat Cards -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="label">Total Options</div>
+        <div class="value" id="stat-total">—</div>
+        <div class="sub">itineraries</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Cheapest</div>
+        <div class="value" id="stat-min">—</div>
+        <div class="sub">for the full trip</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Average Cost</div>
+        <div class="value" id="stat-avg">—</div>
+        <div class="sub">across all routes</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Unique Routes</div>
+        <div class="value" id="stat-routes">—</div>
+        <div class="sub">city orderings</div>
+      </div>
+    </div>
+
+    <!-- Route Chart -->
+    <div class="card" id="chartCard">
+      <div class="card-header">
+        <span class="card-title">Min Price by Route</span>
+        <span class="card-meta">cheapest itinerary per route ordering</span>
+        <button class="expand-card-btn" onclick="toggleFullscreen('chartCard')" id="chartCardBtn" title="Fullscreen">⤢</button>
+      </div>
+      <div class="chart-wrap">
+        <div id="chartSizer">
+          <canvas id="routeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="card" id="itinCard">
+      <div class="card-header">
+        <span class="card-title">Itineraries</span>
+        <span class="card-meta result-count" id="resultMeta"></span>
+        <button class="expand-card-btn" onclick="toggleFullscreen('itinCard')" id="itinCardBtn" title="Fullscreen">⤢</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="setSort('route')" id="th-route">Route</th>
+              <th onclick="setSort('price')" id="th-price" class="sorted">Price</th>
+              <th onclick="setSort('duration')" id="th-duration">Duration</th>
+              <th>Leg 1</th>
+              <th>Layover</th>
+              <th>Leg 2</th>
+              <th>Layover</th>
+              <th>Leg 3</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr><td colspan="9" class="state-msg"><span class="spinner"></span>Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-wrap" id="paginationWrap" style="display:none">
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Fullscreen backdrop -->
+<div id="fsOverlay" onclick="closeFullscreen()"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== Constants =====
+const CITIES = ['AUS', 'BNA', 'CHS', 'NYC', 'ORD'];
+const CITY_LABELS = { AUS: 'Austin (AUS)', BNA: 'Nashville (BNA)', CHS: 'Charleston (CHS)', NYC: 'New York (NYC)', ORD: 'Chicago (ORD)' };
+const AIRLINE_COLORS = {
+  'American':      { bg: '#7a0a14', text: '#ffcdd2' },
+  'Delta':         { bg: '#003c7a', text: '#bbdefb' },
+  'Southwest':     { bg: '#1a3080', text: '#c5cae9' },
+  'Spirit':        { bg: '#7a6200', text: '#fff9c4' },
+  'JetBlue':       { bg: '#003060', text: '#b3e5fc' },
+  'United':        { bg: '#003050', text: '#b3e5fc' },
+  'Alaska':        { bg: '#003a6e', text: '#b3e5fc' },
+  'AmericanAlaska':{ bg: '#5a0a40', text: '#f8bbd0' },
+};
+const DEFAULT_AIRLINE_COLOR = { bg: '#1c2a3a', text: '#90a4ae' };
+
+// ===== State =====
+let state = {
+  page: 1,
+  limit: 10,
+  total: 0,
+  sort: 'price',
+  loading: false,
+  expanded: null,
+  allAirlines: [],
+};
+
+// ===== Helpers =====
+function fmt$(n) { return '$' + n.toLocaleString(); }
+
+function fmtTime(iso) {
+  if (!iso) return '—';
+  const m = iso.match(/T(\d{2}):(\d{2})/);
+  if (!m) return iso;
+  let h = parseInt(m[1]), min = m[2];
+  return `${h % 12 || 12}:${min} ${h >= 12 ? 'PM' : 'AM'}`;
+}
+
+function fmtLayover(mins) {
+  if (!mins && mins !== 0) return '—';
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
+function fmtDuration(mins) {
+  return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+}
+
+function airlineBadge(name) {
+  const c = AIRLINE_COLORS[name] || DEFAULT_AIRLINE_COLOR;
+  return `<span class="airline-badge" style="background:${c.bg};color:${c.text}">${name}</span>`;
+}
+
+function airlineColor(name) {
+  return (AIRLINE_COLORS[name] || DEFAULT_AIRLINE_COLOR).bg;
+}
+
+function layoverClass(mins) {
+  if (mins < 60) return 'warn';
+  if (mins < 90) return '';
+  return 'ok';
+}
+
+// ===== Filter helpers =====
+function getFilters() {
+  const airlines = [...document.querySelectorAll('#airlineList input:checked')].map(el => el.value);
+  const allChecked = airlines.length === state.allAirlines.length;
+  return {
+    min_price: parseInt(document.getElementById('minPrice').value) || 0,
+    max_price: parseInt(document.getElementById('maxPrice').value) || 9999,
+    start_city: document.getElementById('startCity').value,
+    end_city: document.getElementById('endCity').value,
+    must_include: [...document.querySelectorAll('#mustIncludeList input:checked')].map(el => el.value),
+    departs_after: parseInt(document.getElementById('departsAfter').value) || 0,
+    min_layover: parseInt(document.getElementById('minLayover').value) || 0,
+    sort: state.sort,
+    airlines: allChecked ? [] : airlines,  // empty = all
+  };
+}
+
+function buildQS(filters, limit, offset) {
+  const p = new URLSearchParams();
+  if (filters.min_price > 0) p.set('min_price', filters.min_price);
+  if (filters.max_price < 9999) p.set('max_price', filters.max_price);
+  if (filters.start_city) p.set('start_city', filters.start_city);
+  if (filters.end_city) p.set('end_city', filters.end_city);
+  filters.must_include.forEach(c => p.append('must_include', c));
+  if (filters.departs_after > 0) p.set('departs_after', filters.departs_after);
+  if (filters.min_layover > 0) p.set('min_layover', filters.min_layover);
+  filters.airlines.forEach(a => p.append('airlines', a));
+  p.set('sort', filters.sort);
+  p.set('limit', limit);
+  p.set('offset', offset);
+  return p.toString();
+}
+
+// ===== Data loading =====
+async function loadStats() {
+  try {
+    const res = await fetch('/api/stats');
+    const d = await res.json();
+    document.getElementById('stat-total').textContent = d.total_itineraries?.toLocaleString() ?? '—';
+    document.getElementById('stat-min').textContent = d.min_price ? fmt$(d.min_price) : '—';
+    document.getElementById('stat-avg').textContent = d.avg_price ? fmt$(d.avg_price) : '—';
+    document.getElementById('stat-routes').textContent = d.total_routes ?? '—';
+    document.getElementById('db-status').textContent = `${d.total_itineraries?.toLocaleString()} itineraries`;
+    document.getElementById('db-status').className = 'pill amber';
+  } catch(e) {
+    document.getElementById('db-status').textContent = 'DB error';
+  }
+}
+
+let routeChart = null;
+async function loadRouteChart() {
+  const res = await fetch('/api/routes');
+  const routes = await res.json();
+  // Top 20 by min_price
+  const top = routes.slice(0, 20);
+
+  const minP = Math.min(...top.map(r => r.min_price));
+  const maxP = Math.max(...top.map(r => r.min_price));
+
+  const colors = top.map(r => {
+    const t = (r.min_price - minP) / (maxP - minP || 1);
+    // green → amber → red gradient
+    const g = Math.round(185 - t * 160);
+    const r2 = Math.round(50 + t * 200);
+    return `rgba(${r2},${g},50,0.75)`;
+  });
+
+  // Size the inner container so Chart.js fills it and the wrapper scrolls
+  const BAR_HEIGHT = 30;
+  document.getElementById('chartSizer').style.height = (top.length * BAR_HEIGHT + 48) + 'px';
+
+  const ctx = document.getElementById('routeChart').getContext('2d');
+  Chart.defaults.color = '#5a7291';
+  Chart.defaults.borderColor = '#263347';
+
+  if (routeChart) routeChart.destroy();
+  routeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top.map(r => r.route.replace(/ → /g, ' → ')),
+      datasets: [{
+        label: 'Min Price',
+        data: top.map(r => r.min_price),
+        backgroundColor: colors,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${fmt$(ctx.parsed.x)}  avg ${fmt$(top[ctx.dataIndex].avg_price)}  (${top[ctx.dataIndex].count} options)`,
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#263347' },
+          ticks: { callback: v => '$' + v, font: { size: 11 } }
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+async function loadAirlines() {
+  const res = await fetch('/api/airlines');
+  const airlines = await res.json();
+  state.allAirlines = airlines;
+
+  const list = document.getElementById('airlineList');
+  list.innerHTML = airlines.map(a => {
+    const c = AIRLINE_COLORS[a] || DEFAULT_AIRLINE_COLOR;
+    return `<label class="airline-item">
+      <input type="checkbox" value="${a}" checked>
+      <span class="airline-dot" style="background:${c.bg}"></span>
+      ${a}
+    </label>`;
+  }).join('');
+
+  // Populate start/end city dropdowns
+  ['startCity', 'endCity'].forEach(id => {
+    const sel = document.getElementById(id);
+    CITIES.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = CITY_LABELS[c] || c;
+      sel.appendChild(opt);
+    });
+  });
+
+  // Populate must-include checkboxes (unchecked by default)
+  document.getElementById('mustIncludeList').innerHTML = CITIES.map(c => `
+    <label class="airline-item">
+      <input type="checkbox" value="${c}">
+      ${CITY_LABELS[c] || c}
+    </label>`).join('');
+}
+
+async function loadItineraries() {
+  if (state.loading) return;
+  state.loading = true;
+
+  const tbody = document.getElementById('resultsBody');
+  tbody.innerHTML = `<tr><td colspan="9" class="state-msg"><span class="spinner"></span>Loading...</td></tr>`;
+  state.expanded = null;
+
+  const filters = getFilters();
+  const offset = (state.page - 1) * state.limit;
+  const qs = buildQS(filters, state.limit, offset);
+
+  try {
+    const res = await fetch(`/api/itineraries?${qs}`);
+    const data = await res.json();
+
+    state.total = data.total;
+
+    tbody.innerHTML = '';
+    if (data.itineraries.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" class="state-msg">No itineraries match your filters.</td></tr>`;
+    } else {
+      data.itineraries.forEach(itin => appendItineraryRow(tbody, itin));
+    }
+
+    updateResultMeta();
+    updatePagination();
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" class="state-msg">Error loading data. Is the server running?</td></tr>`;
+  } finally {
+    state.loading = false;
+  }
+}
+
+// ===== Rendering =====
+function appendItineraryRow(tbody, itin) {
+  const tr = document.createElement('tr');
+  tr.id = `row-${itin.id}`;
+  tr.innerHTML = rowHTML(itin);
+  tbody.appendChild(tr);
+
+  // Expand row placeholder (hidden)
+  const xtr = document.createElement('tr');
+  xtr.id = `expand-${itin.id}`;
+  xtr.style.display = 'none';
+  xtr.className = 'expand-row';
+  xtr.innerHTML = `<td colspan="9"></td>`;
+  tbody.appendChild(xtr);
+}
+
+function rowHTML(itin) {
+  const l = itin.legs;
+  return `
+    <td class="route-cell">${itin.route}</td>
+    <td><span class="price-big">${fmt$(itin.total_price)}</span></td>
+    <td class="duration-cell">${itin.total_flight_time}</td>
+    <td>${legCell(l[0])}</td>
+    <td class="layover-cell">${fmtLayover(itin.layover1_minutes)}</td>
+    <td>${legCell(l[1])}</td>
+    <td class="layover-cell">${fmtLayover(itin.layover2_minutes)}</td>
+    <td>${legCell(l[2])}</td>
+    <td><button class="expand-btn" onclick="toggleExpand(${itin.id})" id="ebtn-${itin.id}">Details</button></td>
+  `;
+}
+
+function legCell(leg) {
+  return `
+    <div style="display:flex;flex-direction:column;gap:2px">
+      ${airlineBadge(leg.airline)}
+      <span style="font-size:11px;color:var(--muted)">${leg.flight} &nbsp;${fmtTime(leg.departure)} → ${fmtTime(leg.arrival)}</span>
+      <span style="font-size:11px;color:var(--amber)">${fmt$(leg.price)}</span>
+    </div>`;
+}
+
+// ===== Timeline expand =====
+let expandData = {};  // id → itin
+
+function toggleExpand(id) {
+  const xtr = document.getElementById(`expand-${id}`);
+  const btn = document.getElementById(`ebtn-${id}`);
+  const row = document.getElementById(`row-${id}`);
+
+  if (state.expanded === id) {
+    xtr.style.display = 'none';
+    row.classList.remove('expanded');
+    btn.textContent = 'Details';
+    state.expanded = null;
+    return;
+  }
+
+  // Close previously expanded
+  if (state.expanded) {
+    document.getElementById(`expand-${state.expanded}`).style.display = 'none';
+    document.getElementById(`row-${state.expanded}`)?.classList.remove('expanded');
+    document.getElementById(`ebtn-${state.expanded}`).textContent = 'Details';
+  }
+
+  const itin = expandData[id];
+  if (!itin) return;
+
+  xtr.querySelector('td').innerHTML = renderTimeline(itin);
+  xtr.style.display = '';
+  row.classList.add('expanded');
+  btn.textContent = 'Close';
+  state.expanded = id;
+  xtr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderTimeline(itin) {
+  const legs = itin.legs;
+
+  // Compute proportional widths
+  const start = new Date(legs[0].departure).getTime();
+  const end   = new Date(legs[2].arrival).getTime();
+  const span  = end - start || 1;
+
+  function pctOf(ms) { return ((ms / span) * 100).toFixed(1); }
+
+  const legMs = legs.map(l => new Date(l.arrival).getTime() - new Date(l.departure).getTime());
+  const lay1  = new Date(legs[1].departure).getTime() - new Date(legs[0].arrival).getTime();
+  const lay2  = new Date(legs[2].departure).getTime() - new Date(legs[1].arrival).getTime();
+
+  const cities = itin.route.split(' → ');
+
+  function legBlock(leg, idx) {
+    const c = AIRLINE_COLORS[leg.airline] || DEFAULT_AIRLINE_COLOR;
+    const w = pctOf(legMs[idx]);
+    return `<div class="tl-leg" style="width:${w}%;background:${c.bg};min-width:110px">
+      <div class="tl-leg-top">${leg.flight.replace('→', ' → ')}</div>
+      <div class="tl-leg-mid">${leg.airline}</div>
+      <div class="tl-leg-bot">${leg.duration}</div>
+      <div class="tl-leg-price">${fmt$(leg.price)}</div>
+    </div>`;
+  }
+
+  function layoverBlock(ms, city, mins) {
+    const w = Math.max(pctOf(ms), 8);
+    const cls = layoverClass(mins);
+    return `<div class="tl-layover" style="width:${w}%;min-width:80px">
+      <div class="city">${city}</div>
+      <div class="dur">${fmtLayover(mins)} layover</div>
+      ${cls === 'warn' ? '<div class="warn">Tight!</div>' : cls === 'ok' ? '<div class="ok">Comfortable</div>' : ''}
+    </div>`;
+  }
+
+  const timeline = `
+    ${legBlock(legs[0], 0)}
+    ${layoverBlock(lay1, cities[1], itin.layover1_minutes)}
+    ${legBlock(legs[1], 1)}
+    ${layoverBlock(lay2, cities[2], itin.layover2_minutes)}
+    ${legBlock(legs[2], 2)}
+  `;
+
+  const times = `
+    <div class="tl-times">
+      <div class="tl-time-node"><div class="t">${fmtTime(legs[0].departure)}</div><div class="c">${cities[0]}</div></div>
+      <div class="tl-connector"></div>
+      <div class="tl-time-node"><div class="t">${fmtTime(legs[0].arrival)}</div><div class="c"></div></div>
+      <div style="width:80px"></div>
+      <div class="tl-time-node"><div class="t">${fmtTime(legs[1].departure)}</div><div class="c"></div></div>
+      <div class="tl-connector"></div>
+      <div class="tl-time-node"><div class="t">${fmtTime(legs[1].arrival)}</div><div class="c"></div></div>
+      <div style="width:80px"></div>
+      <div class="tl-time-node"><div class="t">${fmtTime(legs[2].departure)}</div><div class="c"></div></div>
+      <div class="tl-connector"></div>
+      <div class="tl-time-node"><div class="t">${fmtTime(legs[2].arrival)}</div><div class="c">${cities[3]}</div></div>
+    </div>
+  `;
+
+  return `<div class="timeline-wrap">
+    <div class="timeline-header">
+      <h3>${itin.route}</h3>
+      <span class="timeline-total">${fmt$(itin.total_price)} total &nbsp;·&nbsp; ${itin.total_flight_time} flying</span>
+    </div>
+    <div class="timeline">${timeline}</div>
+    ${times}
+  </div>`;
+}
+
+// ===== Pagination / sorting =====
+function totalPages() {
+  return Math.ceil(state.total / state.limit) || 1;
+}
+
+function updateResultMeta() {
+  if (!state.total) { document.getElementById('resultMeta').textContent = ''; return; }
+  const from = (state.page - 1) * state.limit + 1;
+  const to   = Math.min(state.page * state.limit, state.total);
+  document.getElementById('resultMeta').textContent =
+    `${from}–${to} of ${state.total.toLocaleString()}  ·  Page ${state.page} of ${totalPages()}`;
+}
+
+function updatePagination() {
+  const wrap = document.getElementById('paginationWrap');
+  const pg   = document.getElementById('pagination');
+  const pages = totalPages();
+
+  if (pages <= 1) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+
+  // Build page number list with ellipsis
+  const current = state.page;
+  const delta = 2;
+  const range = [];
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || (i >= current - delta && i <= current + delta)) {
+      range.push(i);
+    }
+  }
+
+  // Insert ellipsis markers
+  const withEllipsis = [];
+  let prev = null;
+  for (const n of range) {
+    if (prev && n - prev > 1) withEllipsis.push('…');
+    withEllipsis.push(n);
+    prev = n;
+  }
+
+  pg.innerHTML = [
+    `<button class="pg-btn" onclick="goToPage(${current - 1})" ${current === 1 ? 'disabled' : ''}>&#8592; Prev</button>`,
+    ...withEllipsis.map(n =>
+      n === '…'
+        ? `<span class="pg-ellipsis">…</span>`
+        : `<button class="pg-btn ${n === current ? 'active' : ''}" onclick="goToPage(${n})">${n}</button>`
+    ),
+    `<button class="pg-btn" onclick="goToPage(${current + 1})" ${current === pages ? 'disabled' : ''}>Next &#8594;</button>`,
+  ].join('');
+}
+
+function goToPage(n) {
+  const pages = totalPages();
+  if (n < 1 || n > pages) return;
+  state.page = n;
+  loadItineraries();
+  document.getElementById('main').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setSort(col) {
+  state.sort = col;
+  ['route', 'price', 'duration'].forEach(c => {
+    document.getElementById(`th-${c}`)?.classList.toggle('sorted', c === col);
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  state.page = 1;
+  loadItineraries();
+}
+
+function resetFilters() {
+  document.getElementById('minPrice').value = 0;
+  document.getElementById('maxPrice').value = 9999;
+  document.getElementById('startCity').value = '';
+  document.getElementById('endCity').value = '';
+  document.querySelectorAll('#mustIncludeList input').forEach(el => el.checked = false);
+  document.getElementById('departsAfter').value = 0;
+  document.getElementById('minLayover').value = 0;
+  document.getElementById('sortBy').value = 'price';
+  document.querySelectorAll('#airlineList input').forEach(el => el.checked = true);
+  state.sort = 'price';
+  setSort('price');
+}
+
+// ===== Pipeline trigger =====
+async function triggerPipeline() {
+  showToast('Starting data refresh...', '');
+  try {
+    const res = await fetch('/api/pipeline/run', { method: 'POST' });
+    const d = await res.json();
+    if (d.error) { showToast(d.error, 'error'); return; }
+    showToast('Pipeline running in background...', '');
+    pollPipeline();
+  } catch(e) {
+    showToast('Could not start pipeline: ' + e.message, 'error');
+  }
+}
+
+function pollPipeline() {
+  const interval = setInterval(async () => {
+    const res = await fetch('/api/pipeline/status');
+    const d = await res.json();
+    if (!d.running) {
+      clearInterval(interval);
+      if (d.error) {
+        showToast('Pipeline error: ' + d.error, 'error');
+      } else if (d.result) {
+        showToast(`Done! ${d.result.itineraries} itineraries, $${d.result.min_price}–$${d.result.max_price}`, 'success');
+        await loadStats();
+        await loadRouteChart();
+        await loadItineraries();
+      }
+    }
+  }, 1500);
+}
+
+// ===== Toast =====
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show${type ? ' ' + type : ''}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.classList.remove('show'); }, 4000);
+}
+
+// ===== Intercept fetch for expandData cache =====
+const _origFetch = window.fetch;
+window.fetch = async function(url, opts) {
+  const res = await _origFetch(url, opts);
+  if (typeof url === 'string' && url.includes('/api/itineraries')) {
+    const clone = res.clone();
+    clone.json().then(data => {
+      if (data.itineraries) {
+        data.itineraries.forEach(it => { expandData[it.id] = it; });
+      }
+    }).catch(() => {});
+  }
+  return res;
+};
+
+// ===== Fullscreen cards =====
+let _fsCard = null;
+
+function toggleFullscreen(cardId) {
+  if (_fsCard === cardId) {
+    closeFullscreen();
+  } else {
+    if (_fsCard) closeFullscreen();
+    openFullscreen(cardId);
+  }
+}
+
+function openFullscreen(cardId) {
+  const card = document.getElementById(cardId);
+  const btn  = document.getElementById(cardId + 'Btn');
+  card.classList.add('fullscreen');
+  btn.textContent = '✕';
+  btn.title = 'Exit fullscreen';
+  document.getElementById('fsOverlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  _fsCard = cardId;
+  // Resize chart if it's the chart card
+  if (cardId === 'chartCard' && routeChart) {
+    setTimeout(() => routeChart.resize(), 50);
+  }
+}
+
+function closeFullscreen() {
+  if (!_fsCard) return;
+  const card = document.getElementById(_fsCard);
+  const btn  = document.getElementById(_fsCard + 'Btn');
+  card.classList.remove('fullscreen');
+  btn.textContent = '⤢';
+  btn.title = 'Fullscreen';
+  document.getElementById('fsOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+  if (_fsCard === 'chartCard' && routeChart) {
+    setTimeout(() => routeChart.resize(), 50);
+  }
+  _fsCard = null;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFullscreen(); });
+
+// ===== Init =====
+async function init() {
+  await Promise.all([loadStats(), loadAirlines(), loadRouteChart()]);
+  await loadItineraries();
+}
+
+init();
+</script>
+</body>
+</html>

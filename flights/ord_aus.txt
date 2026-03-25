@@ -1,0 +1,122 @@
+All flights
+Prices include required taxes + fees for 1 adult. Optional charges and bag fees may apply. Passenger assistance info.
+
+7:05 AM – 
+10:10 AM
+United
+3 hr 5 min
+ORD–AUS
+Nonstop
+182 kg CO2e
+-9% emissions
+0
+0
+$202
+
+7:10 AM – 
+10:06 AM
+American
+2 hr 56 min
+ORD–AUS
+Nonstop
+151 kg CO2e
+-24% emissions
+1
+0
+$129
+
+9:15 AM – 
+12:21 PM
+United
+3 hr 6 min
+ORD–AUS
+Nonstop
+158 kg CO2e
+-21% emissions
+0
+0
+$202
+
+11:05 AM – 
+1:59 PM
+American
+2 hr 54 min
+ORD–AUS
+Nonstop
+180 kg CO2e
+-10% emissions
+1
+0
+$179
+
+11:10 AM – 
+2:13 PM
+United
+3 hr 3 min
+ORD–AUS
+Nonstop
+190 kg CO2e
+Avg emissions
+0
+0
+$202
+
+1:16 PM – 
+4:19 PM
+United
+3 hr 3 min
+ORD–AUS
+Nonstop
+158 kg CO2e
+-21% emissions
+0
+0
+$202
+
+2:52 PM – 
+5:49 PM
+American
+2 hr 57 min
+ORD–AUS
+Nonstop
+151 kg CO2e
+-24% emissions
+1
+0
+$179
+
+3:45 PM – 
+6:40 PM
+Southwest
+2 hr 55 min
+ORD–AUS
+Nonstop
+152 kg CO2e
+-24% emissions
+1
+0
+$192
+
+7:45 PM – 
+10:49 PM
+United
+3 hr 4 min
+ORD–AUS
+Nonstop
+171 kg CO2e
+-14% emissions
+0
+0
+$202
+
+8:54 PM – 
+11:51 PM
+American
+2 hr 57 min
+ORD–AUS
+Nonstop
+180 kg CO2e
+-10% emissions
+1
+0
+$179

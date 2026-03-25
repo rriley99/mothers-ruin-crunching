@@ -1,0 +1,194 @@
+All flights
+Prices include required taxes + fees for 1 adult. Optional charges and bag fees may apply. Passenger assistance info.
+
+7:00 AM – 
+9:10 AM
+United
+2 hr 10 min
+EWR–CHS
+Nonstop
+110 kg CO2e
+-15% emissions
+0
+0
+$109
+
+8:04 AM – 
+10:15 AM
+JetBlue
+2 hr 11 min
+JFK–CHS
+Nonstop
+136 kg CO2e
+Avg emissions
+1
+0
+$99
+
+8:25 AM – 
+10:39 AM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 14 min
+LGA–CHS
+Nonstop
+145 kg CO2e
++12% emissions
+1
+0
+$99
+
+8:35 AM – 
+11:02 AM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 27 min
+LGA–CHS
+Nonstop
+139 kg CO2e
++8% emissions
+1
+0
+$89
+
+9:05 AM – 
+11:13 AM
+Spirit
+2 hr 8 min
+EWR–CHS
+Nonstop
+112 kg CO2e
+-13% emissions
+0
+0
+$62
+
+9:55 AM – 
+12:12 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 17 min
+JFK–CHS
+Nonstop
+155 kg CO2e
++20% emissions
+1
+0
+$219
+
+12:29 PM – 
+2:47 PM
+Delta
+2 hr 18 min
+LGA–CHS
+Nonstop
+119 kg CO2e
+-8% emissions
+1
+0
+$139
+
+2:04 PM – 
+4:33 PM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 29 min
+LGA–CHS
+Nonstop
+156 kg CO2e
++21% emissions
+1
+0
+$89
+
+2:45 PM – 
+4:57 PM
+JetBlue
+2 hr 12 min
+JFK–CHS
+Nonstop
+136 kg CO2e
+Avg emissions
+1
+0
+$99
+
+2:47 PM – 
+5:12 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 25 min
+JFK–CHS
+Nonstop
+155 kg CO2e
++20% emissions
+1
+0
+$129
+
+3:50 PM – 
+6:15 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 25 min
+LGA–CHS
+Nonstop
+145 kg CO2e
++12% emissions
+1
+0
+$99
+
+4:30 PM – 
+6:41 PM
+United
+2 hr 11 min
+EWR–CHS
+Nonstop
+97 kg CO2e
+-25% emissions
+0
+0
+$126
+
+6:23 PM – 
+8:49 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 26 min
+JFK–CHS
+Nonstop
+144 kg CO2e
++12% emissions
+1
+0
+$319
+
+6:30 PM – 
+8:56 PM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 26 min
+LGA–CHS
+Nonstop
+139 kg CO2e
++8% emissions
+1
+0
+$89
+
+7:00 PM – 
+9:23 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 23 min
+LGA–CHS
+Nonstop
+145 kg CO2e
++12% emissions
+1
+0
+$99
+
+9:44 PM – 
+11:59 PM
+United
+2 hr 15 min
+EWR–CHS
+Nonstop
+92 kg CO2e
+-29% emissions
+0
+0
+$109

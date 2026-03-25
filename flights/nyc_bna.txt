@@ -1,0 +1,288 @@
+All flights
+Prices include required taxes + fees for 1 adult. Optional charges and bag fees may apply. Passenger assistance info.
+
+6:00 AM – 
+7:29 AM
+United
+2 hr 29 min
+EWR–BNA
+Nonstop
+95 kg CO2e
+0
+0
+$89
+
+6:55 AM – 
+8:25 AM
+Southwest
+2 hr 30 min
+LGA–BNA
+Nonstop
+117 kg CO2e
+1
+0
+$89
+
+7:15 AM – 
+8:52 AM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 37 min
+LGA–BNA
+Nonstop
+162 kg CO2e
+1
+0
+$79
+
+7:44 AM – 
+9:20 AM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 36 min
+JFK–BNA
+Nonstop
+175 kg CO2e
+1
+0
+$94
+
+7:45 AM – 
+9:13 AM
+JetBlue
+2 hr 28 min
+JFK–BNA
+Nonstop
+142 kg CO2e
+1
+0
+$89
+
+8:29 AM – 
+10:12 AM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 43 min
+JFK–BNA
+Nonstop
+161 kg CO2e
+1
+0
+$119
+
+9:35 AM – 
+11:19 AM
+UnitedOperated by Republic Airways DBA United Express
+2 hr 44 min
+EWR–BNA
+Nonstop
+151 kg CO2e
+1
+0
+$325
+
+10:05 AM – 
+11:40 AM
+Southwest
+2 hr 35 min
+LGA–BNA
+Nonstop
+137 kg CO2e
+1
+0
+$183
+
+10:40 AM – 
+12:13 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 33 min
+LGA–BNA
+Nonstop
+162 kg CO2e
+1
+0
+$229
+
+11:29 AM – 
+1:02 PM
+United
+2 hr 33 min
+EWR–BNA
+Nonstop
+140 kg CO2e
+0
+0
+$233
+
+11:31 AM – 
+1:07 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 36 min
+JFK–BNA
+Nonstop
+175 kg CO2e
+1
+0
+$309
+
+11:56 AM – 
+1:38 PM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 42 min
+LGA–BNA
+Nonstop
+159 kg CO2e
+1
+0
+$154
+
+1:55 PM – 
+3:28 PM
+Delta
+2 hr 33 min
+LGA–BNA
+Nonstop
+134 kg CO2e
+1
+0
+$229
+
+2:00 PM – 
+3:23 PM
+United
+2 hr 23 min
+EWR–BNA
+Nonstop
+134 kg CO2e
+0
+0
+$190
+
+3:40 PM – 
+5:27 PM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 47 min
+LGA–BNA
+Nonstop
+159 kg CO2e
+1
+0
+$129
+
+3:45 PM – 
+5:25 PM
+Southwest
+2 hr 40 min
+LGA–BNA
+Nonstop
+117 kg CO2e
+1
+0
+$223
+
+3:59 PM – 
+5:52 PM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 53 min
+JFK–BNA
+Nonstop
+161 kg CO2e
+1
+0
+$196
+
+3:59 PM – 
+5:47 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 48 min
+JFK–BNA
+Nonstop
+175 kg CO2e
+1
+0
+$344
+
+4:07 PM – 
+5:28 PM
+United
+2 hr 21 min
+EWR–BNA
+Nonstop
+113 kg CO2e
+1
+0
+$408
+
+5:05 PM – 
+6:50 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 45 min
+LGA–BNA
+Nonstop
+162 kg CO2e
+1
+0
+$289
+
+5:50 PM – 
+7:30 PM
+Southwest
+2 hr 40 min
+LGA–BNA
+Nonstop
+137 kg CO2e
+1
+0
+$209
+
+7:05 PM – 
+8:46 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 41 min
+LGA–BNA
+Nonstop
+162 kg CO2e
+1
+0
+$129
+
+7:55 PM – 
+9:45 PM
+DeltaOperated by Endeavor Air DBA Delta Connection
+2 hr 50 min
+JFK–BNA
+Nonstop
+175 kg CO2e
+1
+0
+$169
+
+7:59 PM – 
+9:37 PM
+United
+2 hr 38 min
+EWR–BNA
+Nonstop
+100 kg CO2e
+0
+0
+$176
+
+8:49 PM – 
+10:32 PM
+AmericanOperated by Republic Airways as American Eagle
+2 hr 43 min
+LGA–BNA
+Nonstop
+159 kg CO2e
+1
+0
+$129
+
+9:25 PM – 
+11:05 PM
+Southwest
+2 hr 40 min
+LGA–BNA
+Nonstop
+103 kg CO2e
+1
+0
+$94

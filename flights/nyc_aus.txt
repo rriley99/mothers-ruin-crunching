@@ -1,0 +1,170 @@
+All flights
+Prices include required taxes + fees for 1 adult. Optional charges and bag fees may apply. Passenger assistance info.
+
+5:30 AM – 
+8:20 AM
+Spirit
+3 hr 50 min
+EWR–AUS
+Nonstop
+192 kg CO2e
+-24% emissions
+0
+0
+$94
+
+6:30 AM – 
+9:30 AM
+United
+4 hr
+EWR–AUS
+Nonstop
+167 kg CO2e
+-34% emissions
+0
+0
+$169
+
+7:05 AM – 
+10:10 AM
+Delta
+4 hr 5 min
+JFK–AUS
+Nonstop
+171 kg CO2e
+-32% emissions
+1
+0
+$169
+
+7:29 AM – 
+10:45 AM
+American
+4 hr 16 min
+JFK–AUS
+Nonstop
+171 kg CO2e
+-32% emissions
+1
+0
+$169
+
+11:27 AM – 
+2:32 PM
+United
+4 hr 5 min
+EWR–AUS
+Nonstop
+201 kg CO2e
+-21% emissions
+0
+0
+$220
+
+11:29 AM – 
+2:45 PM
+Delta
+4 hr 16 min
+JFK–AUS
+Nonstop
+199 kg CO2e
+-21% emissions
+1
+0
+$219
+
+12:40 PM – 
+3:58 PM
+American
+4 hr 18 min
+JFK–AUS
+Nonstop
+201 kg CO2e
+-21% emissions
+1
+0
+$189
+
+1:29 PM – 
+4:41 PM
+Delta
+4 hr 12 min
+JFK–AUS
+Nonstop
+199 kg CO2e
+-21% emissions
+1
+0
+$209
+
+1:29 PM – 
+4:32 PM
+United
+4 hr 3 min
+EWR–AUS
+Nonstop
+167 kg CO2e
+-34% emissions
+0
+0
+$225
+
+3:10 PM – 
+6:13 PM
+Spirit
+4 hr 3 min
+EWR–AUS
+Nonstop
+192 kg CO2e
+-24% emissions
+0
+0
+$94
+
+5:55 PM – 
+9:10 PM
+Delta
+4 hr 15 min
+JFK–AUS
+Nonstop
+199 kg CO2e
+-21% emissions
+1
+0
+$209
+
+6:00 PM – 
+9:22 PM
+American
+4 hr 22 min
+JFK–AUS
+Nonstop
+171 kg CO2e
+-32% emissions
+1
+0
+$189
+
+6:15 PM – 
+9:32 PM
+United
+4 hr 17 min
+EWR–AUS
+Nonstop
+167 kg CO2e
+-34% emissions
+0
+0
+$225
+
+8:22 PM – 
+11:41 PM
+United
+4 hr 19 min
+EWR–AUS
+Nonstop
+233 kg CO2e
+-8% emissions
+0
+0
+$182
