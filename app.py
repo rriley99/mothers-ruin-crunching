@@ -47,6 +47,25 @@ def _layover_minutes(dep_iso: str, arr_iso: str) -> int:
         return 0
 
 
+def _parse_city_min(city_min: list[str]) -> dict[str, int]:
+    """Parse ['CHS:60', 'NYC:90'] into {'CHS': 60, 'NYC': 90}."""
+    result = {}
+    for s in city_min:
+        if ":" in s:
+            city, mins = s.split(":", 1)
+            try:
+                result[city.upper()] = int(mins)
+            except ValueError:
+                pass
+    return result
+
+
+def _layover_cities(route: str) -> tuple[str, str]:
+    """Extract the two layover cities from 'A → B → C → D'."""
+    parts = [p.strip() for p in route.split("→")]
+    return (parts[1] if len(parts) > 1 else "", parts[2] if len(parts) > 2 else "")
+
+
 def _leg_price_int(val) -> int:
     """Coerce leg price to int whether it's '$129' or 129."""
     if isinstance(val, int):
@@ -157,7 +176,7 @@ def get_itineraries(
     end_city: Optional[str] = Query(default=None, max_length=10),
     must_include: list[str] = Query(default=[]),
     airlines: list[str] = Query(default=[]),
-    min_layover: int = Query(default=0, ge=0),
+    city_min: list[str] = Query(default=[]),
     departs_after: int = Query(default=0, ge=0, le=23),
     sort: str = Query(default="price", pattern="^(price|duration|route)$"),
     limit: int = Query(default=50, ge=1, le=200),
@@ -196,12 +215,14 @@ def get_itineraries(
     )
     where = " AND ".join(conditions)
 
+    city_mins = _parse_city_min(city_min)
+    needs_layover_filter = any(v > 0 for v in city_mins.values())
+
     with get_db() as conn:
-        # Check if pre-computed layover columns exist (new schema from pipeline.py)
         has_layover_cols = _has_column(conn, "itineraries", "layover1_minutes")
 
-        # If we need layover filtering and don't have pre-computed cols, fetch all and filter in Python
-        if min_layover > 0 and not has_layover_cols:
+        if needs_layover_filter:
+            # Per-city thresholds require Python-side filtering
             all_rows = conn.execute(
                 f"SELECT * FROM itineraries WHERE {where} ORDER BY {sort_col}",
                 params,
@@ -210,22 +231,22 @@ def get_itineraries(
             filtered = []
             for row in all_rows:
                 r = dict(row)
-                l1 = _layover_minutes(r["leg2_departure"], r["leg1_arrival"])
-                l2 = _layover_minutes(r["leg3_departure"], r["leg2_arrival"])
-                if l1 >= min_layover and l2 >= min_layover:
+                if has_layover_cols:
+                    l1 = r["layover1_minutes"]
+                    l2 = r["layover2_minutes"]
+                else:
+                    l1 = _layover_minutes(r["leg2_departure"], r["leg1_arrival"])
+                    l2 = _layover_minutes(r["leg3_departure"], r["leg2_arrival"])
                     r["layover1_minutes"] = l1
                     r["layover2_minutes"] = l2
+
+                city1, city2 = _layover_cities(r["route"])
+                if l1 >= city_mins.get(city1, 0) and l2 >= city_mins.get(city2, 0):
                     filtered.append(r)
 
             total = len(filtered)
             page = filtered[offset: offset + limit]
         else:
-            if min_layover > 0 and has_layover_cols:
-                conditions.append("layover1_minutes >= ?")
-                conditions.append("layover2_minutes >= ?")
-                params += [min_layover, min_layover]
-                where = " AND ".join(conditions)
-
             total = conn.execute(
                 f"SELECT COUNT(*) FROM itineraries WHERE {where}", params
             ).fetchone()[0]

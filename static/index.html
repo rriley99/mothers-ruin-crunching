@@ -138,6 +138,12 @@ aside {
 
 .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
+.city-layover-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 5px 8px; align-items: center; }
+.city-layover-grid .cl-label { font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: .04em; }
+.city-layover-grid input[type="number"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 4px 6px; font-size: 12px; outline: none; width: 100%; transition: border-color .15s; }
+.city-layover-grid input[type="number"]:focus { border-color: var(--amber); }
+.city-layover-grid .cl-unit { font-size: 11px; color: var(--muted); }
+
 .airline-list {
   display: flex;
   flex-direction: column;
@@ -583,8 +589,24 @@ td {
     </div>
 
     <div class="filter-group">
-      <label>Min Layover (minutes)</label>
-      <input type="number" id="minLayover" placeholder="e.g. 90" min="0" value="0">
+      <label>Min Layover by City</label>
+      <div class="city-layover-grid">
+        <span class="cl-label">CHS</span>
+        <input type="number" class="city-layover-input" data-city="CHS" min="0" value="0" placeholder="0">
+        <span class="cl-unit">min</span>
+        <span class="cl-label">NYC</span>
+        <input type="number" class="city-layover-input" data-city="NYC" min="0" value="0" placeholder="0">
+        <span class="cl-unit">min</span>
+        <span class="cl-label">BNA</span>
+        <input type="number" class="city-layover-input" data-city="BNA" min="0" value="0" placeholder="0">
+        <span class="cl-unit">min</span>
+        <span class="cl-label">ORD</span>
+        <input type="number" class="city-layover-input" data-city="ORD" min="0" value="0" placeholder="0">
+        <span class="cl-unit">min</span>
+        <span class="cl-label">AUS</span>
+        <input type="number" class="city-layover-input" data-city="AUS" min="0" value="0" placeholder="0">
+        <span class="cl-unit">min</span>
+      </div>
     </div>
 
     <hr class="divider">
@@ -749,10 +771,12 @@ function airlineColor(name) {
   return (AIRLINE_COLORS[name] || DEFAULT_AIRLINE_COLOR).bg;
 }
 
-function layoverClass(mins) {
-  if (mins < 60) return 'warn';
-  if (mins < 90) return '';
-  return 'ok';
+const CITY_LAYOVER_COMFORT = { CHS: 60, AUS: 60, BNA: 60, ORD: 75, NYC: 90 };
+function layoverClass(mins, city) {
+  const threshold = CITY_LAYOVER_COMFORT[city] || 60;
+  if (mins < threshold) return 'warn';
+  if (mins >= threshold + 30) return 'ok';
+  return '';
 }
 
 // ===== Filter helpers =====
@@ -766,7 +790,11 @@ function getFilters() {
     end_city: document.getElementById('endCity').value,
     must_include: [...document.querySelectorAll('#mustIncludeList input:checked')].map(el => el.value),
     departs_after: parseInt(document.getElementById('departsAfter').value) || 0,
-    min_layover: parseInt(document.getElementById('minLayover').value) || 0,
+    city_min: Object.fromEntries(
+      [...document.querySelectorAll('.city-layover-input')]
+        .map(el => [el.dataset.city, parseInt(el.value) || 0])
+        .filter(([, v]) => v > 0)
+    ),
     sort: state.sort,
     airlines: allChecked ? [] : airlines,  // empty = all
   };
@@ -780,7 +808,7 @@ function buildQS(filters, limit, offset) {
   if (filters.end_city) p.set('end_city', filters.end_city);
   filters.must_include.forEach(c => p.append('must_include', c));
   if (filters.departs_after > 0) p.set('departs_after', filters.departs_after);
-  if (filters.min_layover > 0) p.set('min_layover', filters.min_layover);
+  Object.entries(filters.city_min || {}).forEach(([city, mins]) => p.append('city_min', `${city}:${mins}`));
   filters.airlines.forEach(a => p.append('airlines', a));
   p.set('sort', filters.sort);
   p.set('limit', limit);
@@ -1039,7 +1067,7 @@ function renderTimeline(itin) {
 
   function layoverBlock(ms, city, mins) {
     const w = Math.max(pctOf(ms), 8);
-    const cls = layoverClass(mins);
+    const cls = layoverClass(mins, city);
     return `<div class="tl-layover" style="width:${w}%;min-width:80px">
       <div class="city">${city}</div>
       <div class="dur">${fmtLayover(mins)} layover</div>
@@ -1160,7 +1188,7 @@ function resetFilters() {
   document.getElementById('endCity').value = '';
   document.querySelectorAll('#mustIncludeList input').forEach(el => el.checked = false);
   document.getElementById('departsAfter').value = 0;
-  document.getElementById('minLayover').value = 0;
+  document.querySelectorAll('.city-layover-input').forEach(el => el.value = 0);
   document.getElementById('sortBy').value = 'price';
   document.querySelectorAll('#airlineList input').forEach(el => el.checked = true);
   state.sort = 'price';

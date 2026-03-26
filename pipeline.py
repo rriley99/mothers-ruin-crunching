@@ -9,6 +9,7 @@ Usage:
 
 import argparse
 import csv
+import json
 import os
 import re
 import sqlite3
@@ -24,6 +25,12 @@ FLIGHT_DATE = "2026-05-10"
 ALL_CITIES = ["NYC", "BNA", "CHS", "ORD", "AUS"]
 REQUIRED_CITY = "CHS"
 NUM_CITIES = 4
+
+# Airport → city code (for NYC's three airports)
+AIRPORT_TO_CITY: dict[str, str] = {
+    "AUS": "AUS", "BNA": "BNA", "CHS": "CHS", "ORD": "ORD",
+    "JFK": "NYC", "LGA": "NYC", "EWR": "NYC",
+}
 
 AIRPORT_TZ: dict[str, str] = {
     "AUS": "America/Chicago",
@@ -176,14 +183,83 @@ def parse_flight_file(filepath: str) -> list[dict]:
     return flights
 
 
+def parse_json_file(filepath: str) -> list[dict]:
+    """Parse a single flights/*.json file (from scrape_flights.py) into enriched flight dicts."""
+    name = os.path.basename(filepath).replace(".json", "")
+    origin_city, dest_city = name.split("_")
+    origin_city = origin_city.upper()
+    dest_city = dest_city.upper()
+
+    with open(filepath, encoding="utf-8") as f:
+        raw = json.load(f)
+
+    flights = []
+    for r in raw:
+        try:
+            origin_airport = r["from"]
+            dest_airport = r["to"]
+
+            # Strip " on Sun, May 10" suffix that fast-flights appends
+            dep_time = re.sub(r"\s+on\s+.+$", "", r["departure"].strip())
+            arr_time = re.sub(r"\s+on\s+.+$", "", r["arrival"].strip())
+            if r.get("arrival_time_ahead") == "+1":
+                arr_time += "+1"
+
+            dep_dt = _parse_local_time(dep_time, origin_airport)
+            arr_dt = _parse_local_time(arr_time, dest_airport)
+
+            stops_int = r["stops"]
+            if isinstance(stops_int, int):
+                stops_str = "Nonstop" if stops_int == 0 else f"{stops_int} stop{'s' if stops_int > 1 else ''}"
+            else:
+                stops_str = str(stops_int)
+
+            flights.append({
+                "origin_city": AIRPORT_TO_CITY.get(origin_airport, origin_city),
+                "dest_city": AIRPORT_TO_CITY.get(dest_airport, dest_city),
+                "origin_airport": origin_airport,
+                "dest_airport": dest_airport,
+                "departure": dep_time,
+                "arrival": arr_time,
+                "departure_tz": dep_dt.isoformat(),
+                "arrival_tz": arr_dt.isoformat(),
+                "departure_dt": dep_dt,
+                "arrival_dt": arr_dt,
+                "airline": r["airline"],
+                "operated_by": "",
+                "duration": r["duration"],
+                "duration_minutes": _parse_duration_minutes(r["duration"]),
+                "stops": stops_str,
+                "co2": "",
+                "emissions_vs_avg": "",
+                "price_raw": r["price"],
+                "price": _parse_price(r["price"]),
+            })
+        except (KeyError, ValueError) as e:
+            print(f"  Warning: skipping record in {filepath}: {e}")
+
+    return flights
+
+
 def parse_all_flights(flights_dir: str) -> list[dict]:
     all_flights: list[dict] = []
-    files = sorted(f for f in os.listdir(flights_dir) if f.endswith(".txt"))
-    print(f"Parsing {len(files)} flight files...")
-    for fname in files:
-        flights = parse_flight_file(os.path.join(flights_dir, fname))
+
+    json_files = sorted(f for f in os.listdir(flights_dir) if f.endswith(".json"))
+    txt_files = sorted(f for f in os.listdir(flights_dir) if f.endswith(".txt"))
+
+    # Prefer JSON (live scrape) over txt (manual dump); fall back to txt if no JSON exists
+    json_stems = {f[:-5] for f in json_files}
+    txt_fallbacks = [f for f in txt_files if f[:-4] not in json_stems]
+
+    sources = [(f, "json") for f in json_files] + [(f, "txt") for f in txt_fallbacks]
+    print(f"Parsing {len(sources)} flight files ({len(json_files)} JSON, {len(txt_fallbacks)} txt fallbacks)...")
+
+    for fname, fmt in sources:
+        fpath = os.path.join(flights_dir, fname)
+        flights = parse_json_file(fpath) if fmt == "json" else parse_flight_file(fpath)
         print(f"  {fname}: {len(flights)} flights")
         all_flights.extend(flights)
+
     return all_flights
 
 
